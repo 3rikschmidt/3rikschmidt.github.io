@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>What is Google Closure</title>
+
+        <meta name="description" content="">
+        <meta name="author" content="">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', include the PDF print sheet -->
+        <script>
+            if( window.location.search.match( /print-pdf/gi ) ) {
+                var link = document.createElement( 'link' );
+                link.rel = 'stylesheet';
+                link.type = 'text/css';
+                link.href = 'css/print/pdf.css';
+                document.getElementsByTagName( 'head' )[0].appendChild( link );
+            }
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+        <div class="reveal">
+            <div class="slides">
+
+                <section data-markdown>
+                    ##Google Closure
+                    ###An Introduction
+                    ####By Erik Schmidt
+                    ####[@3rikschmidt](http://www.twitter.com/3rikschmidt)
+                </section>
+
+                <section>
+                    <h2>Why Google Closure</h2>
+                    <ul>
+                        <li>Inheritance Helpers</li>
+                        <li>Namespacing Helpers</li>
+                        <li>Modules, Dependencies</li>
+                        <li>Unit Testing</li>
+                        <li>Minification / Obfuscation</li>
+                        <li>Static Code Checks</li>
+                        <li>Library</li>
+                        <li>...</li>
+                    </ul>
+
+                    <aside class="notes" data-markdown>
+                        * Started new project and needed tools for....,
+                        * started using underscore and jquery
+                        * but did want to loose as much external dependencies as possible
+                        * Modules: Many smaller files vs one big one
+                        * Library: Cross Browser Abstr., Simplifying certain tasks, and so on
+                    </aside>
+                </section>
+
+                <section>
+                    <div data-markdown>
+                        ##Closure Tools
+                        https://developers.google.com/closure
+
+                        * Library
+                        * Compiler
+                        * Templates
+                        * Linter
+                        * Stylesheets
+                    </div>
+
+                    <aside class="notes" data-markdown>
+                        * Tools can be used together
+                        * or separately
+                    </aside>
+                </section>
+
+                <section>
+                    <section>
+                        <div>
+                            <h2>Closure Library</h2>
+                            <p data-markdown>
+                            https://developers.google.com/closure/library
+                            https://github.com/google/closure-library
+                            <p>
+
+                            <ul>
+                                <li>"broad, well-tested, modular, <br/>and cross-browser library"</li>
+                                <li>used by all major Google products</li>
+                                <li>UI Widgets</li>
+                                <li>Utilitites (DOM, Communication, ..)</li>
+                                <li>Data Structures</li>
+                                <li>Unit Testing</li>
+                                <li>Logging</li>
+                                <li>provide / require</li>
+                            </ul>
+                        </div>
+
+                        <aside class="notes" data-markdown>
+                            * modular
+                              * not one big file, many small ones, use what you need
+                            * Utilities
+                              * + animation, promisses (A+), offline storage, ..
+                            * Data Structures
+                              * Maps, Sets, Trees, Queues..
+                            * provide / require 
+                              * what i meant with modules
+                              * multiple files, dependencies 
+                              * works compiled and uncompiled
+                        </aside>
+                    </section>
+
+                    <section>
+                        <div data-markdown>
+                            * huge (~900 code files, ~600 test suites)
+                            * verbose coding style
+                            * Documentation: JsDoc, Tests, [Demos](/closure-library-master/closure/goog/demos)
+                            * JsDoc Annotations (Types, Access Modifiers, ...)
+                            * meant to be used with the Compiler
+                        </div>
+
+                        <pre><code data-trim>
+goog.array.forEach(goog.dom.query("div > p", null),
+  function(e) { goog.style.showElement(e, false); });
+
+// vs
+
+$("div > p").hide();
+                        </code></pre>
+
+                        <aside class="notes" data-markdown>
+                            * although modular, single files mostly contain more and depend on more stuff then you need
+                            * compiler can get rid of excess code
+                        </aside>
+                    </section>
+
+                    <section>
+                        require / provide
+
+                        <pre><code data-trim>
+//hello.js
+goog.provide('mynamespace');
+goog.require('goog.dom');
+
+/**
+ * @param {string} id of element to append message to
+ */
+mynamespace.helloWorld = function( id ) {
+    goog.dom.getElement(id).innerHTML = 'Hello World! ';
+};
+                        </code></pre>
+                        <pre><code data-trim class="xml">&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;body&gt;
+    &lt;div id='hello'&gt;&lt;/div&gt;
+
+    &lt;script src=&quot;/js/closure-library/closure/goog/base.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;/js/hello.js&quot;&gt;&lt;/script&gt;
+    &lt;!-- script&gt;
+        goog.require('mynamespace');
+    &lt;/script --&gt;
+    &lt;script&gt;
+        mynamespace.helloWorld('hello');
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+                        </code></pre>
+
+                        <aside class="notes" data-markdown>
+                            * a script builds up a dependency tree (deps.js)
+                            * closure comes with its own 
+                            * you can create your own tree
+                        </aside>
+                    </section>
+
+                    <section>
+                        Inheritance / Access Modifiers
+
+                        <pre><code data-trim>
+goog.provide('mynamespace');
+goog.require('goog.events.EventTarget');
+
+/**
+ * @constructor
+ * @extends {goog.events.EventTarget}
+ */
+mynamespace.SomeClass = function() {
+    goog.events.EventTarget.call(this);
+};
+goog.inherits(mynamespace.SomeClass, goog.events.EventTarget);
+
+/**
+ * @protected
+ */
+mynamespace.SomeClass.prototype.someMethod = function() {
+};
+                        </code></pre>
+                    </section>
+
+                    <section data-markdown>
+                        Demos: [github/../closure/goog/demos](https://github.com/google/closure-library/tree/master/closure/goog/demos)
+
+                        Tests: [github/../*_test.html](https://github.com/google/closure-library/blob/master/closure/goog/array/array_test.html)
+                    </section>
+                </section>
+
+                <section>
+                    <section data-markdown>
+                        ## Closure Compiler
+                        https://developers.google.com/closure/compiler
+                        https://github.com/google/closure-compiler
+
+                        * Checks Syntax, Function Calls
+                        * Checks Variable References
+                        * Checks Types
+                        * Minimizes Your Code
+                         * optimized for gziped size
+                        * Removes dead code
+                        * optimizes whole programm
+                    </section>
+
+                    <section>
+                        <div data-markdown>
+                            ## Type Annotations
+                        </div>
+                        <pre><code data-trim class="javascript">
+/**
+ * ...
+ *
+ * @param {string} a ...
+ * @param {Function|Object} b ...
+ * @param {boolean=} c ...
+ * @param {Object=} d ...
+ */
+namespace.function = function( a, b, c, d) {};
+                        </code></pre>
+                        <pre><code data-trim class="javascript">
+/**
+ * ...
+ *
+ * @param {Array.&lt;T&gt;|goog.array.ArrayLike} arr ...
+ * @param {?function(this: S, T, number, ?): ?} f ...
+ * @param {S=} opt_obj ...
+ * @template T,S
+ */
+goog.array.forEach = /* ... */ function(arr, f, opt_obj) {};
+                        </code></pre>
+                    </section>
+
+                    <section data-markdown>
+                        ##Compiler modes - Whitespace Only
+
+                        * removes whitespaces
+                        * removes comments
+                    </section>
+
+                    <section data-markdown>
+                        ##Compiler modes - Simple Optimizations
+
+                        * same as Whitespace Only
+                        * optimizations within expressions and functions
+                        * local variable and parameter renaming
+                    </section>
+
+                    <section data-markdown>
+                        ##Compiler modes - Advanced Optimizations
+
+                        * same as Simple Optimizations
+                        * adds more aggressive transformations
+                        * renames everything
+                         * except what it shouldn't (externs, exports)
+                         * or can't - bracket vs dot notation
+                        * removes dead code
+                        * inlining (function bodies, constants, ..)
+                    </section>
+
+                    <section>
+                        <div data-markdown>
+                            ##Demo Time
+                            http://closure-compiler.appspot.com/
+                        </div>
+
+                        <aside class="notes" data-markdown>
+                            * show compiler_dmeo.txt
+                            * show what happends if new ns.Class called with same value all times
+                        </aside>
+                    </section>
+                </section>
+
+                <section>
+                    <section data-markdown>
+                        ## Closure Templates (Soy)
+                        https://developers.google.com/closure/templates
+
+                        * client (js) and server-side (java)
+                        * expression syntax (if, loops, call other templates..)
+                        * i18n support
+                        * auto escapes dynamic input
+                        * js: compiles into js functions
+                    </section>
+                </section>
+
+                <section>
+                    <section data-markdown>
+                        ## Closure Linter
+                        https://developers.google.com/closure/templates
+
+                        Checks code style issues according to Google Javascript Style Guide
+                        * missing semicolons
+                        * spacing
+                        * JsOoc annotations
+                    </section>
+                </section>
+
+                <section>
+                    <section data-markdown>
+                        ## Closure Stylesheets
+                        http://code.google.com/p/closure-stylesheets/
+
+                        * seems like Less/Sass
+                        * didnt look at it
+                    </section>
+                </section>
+
+                <section>
+                    <h2>More Links</h2>
+
+                    <div style="font-size: 25px;">
+                        <p>
+                            Jquery/Closure Library comparison<br/>
+                            <a href="http://goo.gl/g2MsWU">http://goo.gl/g2MsWU</a><br/>
+                            <a href="http://goo.gl/OVjqe1">http://goo.gl/OVjqe1</a>
+                        </p>
+
+                        <p>Book Closure: The Definitive Guide<br/><a href="http://goo.gl/DsaumD">http://goo.gl/DsaumD</a></p>
+
+                        <p>
+                            Google Groups<br/>
+                            <a href="https://groups.google.com/forum/#!forum/closure-library-discuss">https://groups.google.com/forum/#!forum/closure-library-discuss</a>
+                            <a href="https://groups.google.com/forum/#!forum/closure-compiler-discuss">https://groups.google.com/forum/#!forum/closure-compiler-discuss</a>
+                        </p>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
+
+        </script>
+
+    </body>
+</html>

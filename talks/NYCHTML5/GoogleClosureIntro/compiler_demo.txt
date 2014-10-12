@@ -1,0 +1,42 @@
+// ==ClosureCompiler==
+// @compilation_level ADVANCED_OPTIMIZATIONS
+// @output_file_name default.js
+// @formatting pretty_print
+// ==/ClosureCompiler==
+
+// will be inlined everywhere it is used
+function hello(name) {
+  alert('Hello, ' + name);
+}
+
+// wil be inlined, even the string concat
+hello('world');
+
+
+goog.provide('ns');
+
+/**
+ * will be flattened (no a.b)
+ * @constructor
+ * @param {string} v some value
+ */
+ns.Class = function( v ) {
+  this.value = v;
+  hello(v);
+};
+
+// will be devirtualized into static call
+ns.Class.prototype.devirtualizeMe = function( param ) {
+  var localVar = this.value.toUpperCase();
+  localVar += param;
+  console.log(localVar);
+};
+
+var a = new ns.Class('hello');
+a.devirtualizeMe(1);
+
+var b = new ns.Class('world');
+b.devirtualizeMe(2);
+
+var c = new ns.Class('hello');
+c.devirtualizeMe(3);
